@@ -1,0 +1,17 @@
+$SplunkInstaller = "\\YourServer\Software\SplunkInstaller.msi"
+$DeployConfig = "\\YourServer\Software\deploymentclient.conf"
+
+# Ensure Splunk is not already installed
+if (-Not (Test-Path "C:\Program Files\SplunkUniversalForwarder")) {
+    # Create necessary directories
+    $InstallDir = "C:\ProgramData\Splunk"
+    if (!(Test-Path $InstallDir)) {
+        New-Item -Path $InstallDir -ItemType Directory -Force | Out-Null
+    }
+
+    # Copy configuration files
+    Copy-Item -Path $DeployConfig -Destination "$InstallDir\deploymentclient.conf" -Force
+
+    # Install Splunk Silently
+    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$SplunkInstaller`" /qn AGREETOLICENSE=Yes DEPLOYMENT_SERVER=YourSplunkServer:8089 LAUNCHSPLUNK=1" -Wait
+}
